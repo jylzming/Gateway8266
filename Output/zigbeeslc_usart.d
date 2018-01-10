@@ -1,0 +1,14 @@
+..\output\zigbeeslc_usart.o: ..\User\ZigBeeSLC\zigbeeSLC_usart.c
+..\output\zigbeeslc_usart.o: ..\User\ZigBeeSLC\zigbeeSLC_usart.h
+..\output\zigbeeslc_usart.o: ..\Libraries\CMSIS\stm32f10x.h
+..\output\zigbeeslc_usart.o: ..\Libraries\CMSIS\core_cm3.h
+..\output\zigbeeslc_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\output\zigbeeslc_usart.o: ..\Libraries\CMSIS\system_stm32f10x.h
+..\output\zigbeeslc_usart.o: ..\User\stm32f10x_conf.h
+..\output\zigbeeslc_usart.o: ..\Libraries\FWlib\inc\stm32f10x_gpio.h
+..\output\zigbeeslc_usart.o: ..\Libraries\CMSIS\stm32f10x.h
+..\output\zigbeeslc_usart.o: ..\Libraries\FWlib\inc\stm32f10x_rcc.h
+..\output\zigbeeslc_usart.o: ..\Libraries\FWlib\inc\stm32f10x_usart.h
+..\output\zigbeeslc_usart.o: ..\Libraries\FWlib\inc\misc.h
+..\output\zigbeeslc_usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\output\zigbeeslc_usart.o: ..\User\Common\common.h
