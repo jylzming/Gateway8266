@@ -16,6 +16,9 @@
   */ 
   
 #include "zigbeeGS_usart.h"
+#include "common.h"
+
+struct  STRUCT_USARTx_Fram strZigBeeGS_Fram_Record = { 0 };
 
  /**
   * @brief  USARTx GPIO 配置,工作模式配置。115200 8-N-1
@@ -49,9 +52,12 @@ void ZigBeeGS_USART_Config(void)
 	USART_InitStructure.USART_Parity = USART_Parity_No ;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-	USART_Init(ZigBeeGS_USART, &USART_InitStructure);
+	USART_Init(ZigBeeGS_USARTx, &USART_InitStructure);
+	
+	USART_ITConfig ( ZigBeeGS_USARTx, USART_IT_IDLE, ENABLE ); 
+	USART_ITConfig ( ZigBeeGS_USARTx, USART_IT_RXNE, ENABLE ); 
 	ZigBeeGS_USART_NVIC_Configuration();
-	USART_Cmd(ZigBeeGS_USART, ENABLE);
+	USART_Cmd(ZigBeeGS_USARTx, ENABLE);
 	
 }
 
@@ -60,10 +66,13 @@ static void ZigBeeGS_USART_NVIC_Configuration(void)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = ZigBeeGS_USART_IRQ;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
+
+
+
 
 ///// 重定向c库函数printf到USART1
 //int fputc(int ch, FILE *f)

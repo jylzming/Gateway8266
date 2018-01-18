@@ -2,11 +2,10 @@
 #include "stm32f10x.h"
 #include <stdarg.h>
 #include <stdio.h>  
-#include <string.h>  
+#include <string.h> 
+#include <ctype.h> 
 
 static char *itoa( int value, char * string, int radix );
-
-
 
 /*
  * º¯ÊýÃû£ºUSART_printf
@@ -235,7 +234,84 @@ void HexStrToByte(const char* source, unsigned char* dest, int sourceLen)
     return ;  
 }  
 
+int Hex2Ascii(char* hex, char* ascii)  
+{  
+	char tmp = 0, tmp1 = 0;
+	uint16_t len = strlen(hex);
+	int tlen = 0, i = 0, cnt = 0; 
+	for (i = 0; i<len; i++)  
+	{ 
+		tmp = toupper(hex[i]);  
+		if ((tmp>='0'&& tmp<='9') || (tmp>='A'&& tmp<='F'))  
+		{  
+			tmp1 = (tmp >= 'A') ? tmp - 'A' + 10 : tmp - '0';  
+			if (cnt)  
+				ascii[tlen++] +=tmp1, cnt = 0;  
+			else  
+				ascii[tlen] = tmp1 << 4, cnt = 1;  
+		}  
+	}    
+	return tlen;  
+}  
+  
+int Ascii2Hex(char* ascii, char* hex)  
+{  
+    int i, len = strlen(ascii);  
+    char chHex[] = "0123456789ABCDEF";  
+                      
+    for (i = 0; i<len; i++)  
+    {  
+        hex[i*3]    = chHex[((char)ascii[i]) >> 4];  
+        hex[i*3 +1] = chHex[((char)ascii[i]) & 0xf];  
+        hex[i*3 +2] = ' ';  
+    }  
+  
+    hex[len * 3] = '\0';  
+  
+    return len * 3;  
+}
 
 
+/**function: CharToHex() 
+*** ACSII change to 16 hex 
+*** input:ACSII 
+***Return :Hex 
+**/  
+unsigned char CharToHex(unsigned char bHex)  
+{  
+    if((bHex>=0)&&(bHex<=9))  
+    {  
+        bHex += 0x30;  
+    }  
+    else if((bHex>=10)&&(bHex<=15))//Capital  
+    {  
+        bHex += 0x37;  
+    }  
+    else   
+    {  
+        bHex = 0xff;  
+    }  
+    return bHex;  
+} 
 
+unsigned char HexToChar(unsigned char bChar)  
+{  
+    if((bChar>=0x30)&&(bChar<=0x39))  
+    {  
+        bChar -= 0x30;  
+    }  
+    else if((bChar>=0x41)&&(bChar<=0x46)) // Capital  
+    {  
+        bChar -= 0x37;  
+    }  
+    else if((bChar>=0x61)&&(bChar<=0x66)) //littlecase  
+    {  
+        bChar -= 0x57;  
+    }  
+    else   
+    {  
+        bChar = 0xff;  
+    }  
+    return bChar;  
+} 
 

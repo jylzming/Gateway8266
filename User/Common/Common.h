@@ -29,16 +29,17 @@ extern struct  STRUCT_USARTx_Fram                                  //???????????
 		  __IO u16 FramFinishFlag   :1;                                // 15 
 	  } InfBit;
 	}; 	
-}strEsp8266_Fram_Record, strZigBeeSLC_Fram_Record;
-
-
+}strEsp8266_Fram_Record, strZigBeeSLC_Fram_Record, strZigBeeGS_Fram_Record;
 
 /********************************** º¯ÊýÉùÃ÷ ***************************************/
 void  USART_printf( USART_TypeDef * USARTx, char * Data, ... );
 void Hex2Str( const char *sSrc,  char *sDest, int nSrcLen );
 void HexStrToByte(const char* source, unsigned char* dest, int sourceLen);
 void ByteToHexStr(const unsigned char* source, char* dest, int sourceLen);
-
+int Hex2Ascii(char* hex, char* ascii);
+int Ascii2Hex(char* ascii, char* hex);
+unsigned char CharToHex(unsigned char bHex);
+unsigned char HexToChar(unsigned char bChar);
 
 #endif /* __COMMON_H */
 

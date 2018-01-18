@@ -101,6 +101,7 @@ typedef enum{
 void                     ESP8266_Init                        ( void );
 void                     ESP8266_Rst                         ( void );
 bool                     ESP8266_Cmd                         ( char * cmd, char * reply1, char * reply2, u32 waittime );
+bool ESP8266_Hex (char *s, uint8_t length, char * reply1, char * reply2, u32 waittime );
 void                     ESP8266_AT_Test                     ( void );
 bool                     ESP8266_Net_Mode_Choose             ( ENUM_Net_ModeTypeDef enumMode );
 bool                     ESP8266_JoinAP                      ( char * pSSID, char * pPassWord );
@@ -114,6 +115,7 @@ uint8_t                  ESP8266_Inquire_ApIp                ( char * pApIp, uin
 bool                     ESP8266_UnvarnishSend               ( void );
 void                     ESP8266_ExitUnvarnishSend           ( void );
 bool                     ESP8266_SendString                  ( FunctionalState enumEnUnvarnishTx, char * pStr, u32 ulStrLength, ENUM_ID_NO_TypeDef ucId );
+bool ESP8266_SendHexString ( FunctionalState enumEnUnvarnishTx, struct STRUCT_USARTx_Fram fram, ENUM_ID_NO_TypeDef ucId );
 char *                   ESP8266_ReceiveString               ( FunctionalState enumEnUnvarnishTx );
 
 

@@ -10,7 +10,7 @@
 /**************************USART参数定义********************************/
 #define             ZigBeeGS_USART_BAUD_RATE                       115200
 
-#define             ZigBeeGS_USART                                USART2
+#define             ZigBeeGS_USARTx                                USART2
 #define             ZigBeeGS_USART_APBxClock_FUN                   RCC_APB1PeriphClockCmd
 #define             ZigBeeGS_USART_CLK                             RCC_APB1Periph_USART2
 #define             ZigBeeGS_USART_GPIO_APBxClock_FUN              RCC_APB2PeriphClockCmd
@@ -22,7 +22,7 @@
 #define             ZigBeeGS_USART_IRQ                             USART2_IRQn
 #define             ZigBeeGS_USART_INT_FUN                         USART2_IRQHandler
 
-#define     ZigBeeGS_Usart( fmt, ... )           USART_printf ( ZigBeeGS_USART, fmt, ##__VA_ARGS__ ) 
+#define     ZigBeeGS_Usart( fmt, ... )           USART_printf ( ZigBeeGS_USARTx, fmt, ##__VA_ARGS__ ) 
 
 void ZigBeeGS_USART_Config( void );
 static void ZigBeeGS_USART_NVIC_Configuration(void);

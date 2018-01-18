@@ -132,8 +132,8 @@ static void ESP8266_USART_NVIC_Configuration ( void )
 
 	/* Enable the USART2 Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = macESP8266_USART_IRQ;	 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -150,12 +150,12 @@ static void ESP8266_USART_NVIC_Configuration ( void )
 void ESP8266_Rst ( void )
 {
 	#if 0
-	 ESP8266_Cmd ( "AT+RST", "OK", "ready", 2500 );   	
-	
-	#else
 	 macESP8266_RST_LOW_LEVEL();
 	 Delay_ms ( 500 ); 
-	 macESP8266_RST_HIGH_LEVEL();
+	 macESP8266_RST_HIGH_LEVEL();	
+	
+	#else
+	 ESP8266_Cmd ( "AT+RST", "OK", "ready", 2500 );   	
 	#endif
 
 }
@@ -194,11 +194,33 @@ bool ESP8266_Cmd ( char * cmd, char * reply1, char * reply2, u32 waittime )
 		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply1 ) );
 	
 	else
-		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply2 ) );
-	
+		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply2 ) );	
 }
 
+bool ESP8266_Hex (char *s, uint8_t length, char * reply1, char * reply2, u32 waittime )
+{ 
+	uint8_t i;
+	strEsp8266_Fram_Record .InfBit .FramLength = 0;               //从新开始接收新的数据包
+	//macESP8266_Usart ( "%s\r\n", cmd );
+	for(i=0; i<length; i++)
+	{
+		USART_SendData(macESP8266_USARTx, s[i]);
+		while(USART_GetFlagStatus(macESP8266_USARTx, USART_FLAG_TXE) == RESET);
+	}  	
+	if ( ( reply1 == 0 ) && ( reply2 == 0 ) )                      //不需要接收数据
+		return true;
+	Delay_ms ( waittime );                 //延时
+	strEsp8266_Fram_Record .Data_RX_BUF [ strEsp8266_Fram_Record .InfBit .FramLength ]  = '\0';
+	macPC_Usart ( "%s", strEsp8266_Fram_Record .Data_RX_BUF );
 
+	if ( ( reply1 != 0 ) && ( reply2 != 0 ) )
+		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply1 ) || 
+						 ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply2 ) ); 
+ 	else if ( reply1 != 0 )
+		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply1 ) );
+	else
+		return ( ( bool ) strstr ( strEsp8266_Fram_Record .Data_RX_BUF, reply2 ) );	
+}
 /*
  * 函数名：ESP8266_AT_Test
  * 描述  ：对WF-ESP8266模块进行AT测试启动
@@ -582,7 +604,28 @@ bool ESP8266_SendString ( FunctionalState enumEnUnvarnishTx, char * pStr, u32 ul
 	return bRet;
 }
 
-
+bool ESP8266_SendHexString ( FunctionalState enumEnUnvarnishTx, struct STRUCT_USARTx_Fram fram, ENUM_ID_NO_TypeDef ucId )
+{
+	char cStr [20];
+	bool bRet = false;
+	
+	if ( enumEnUnvarnishTx )
+	{
+//		ESP8266_Hex( fram, "SEND OK", 0, 1000 );
+		bRet = true;	
+	}
+	else
+	{
+		if ( ucId < 5 )
+			sprintf ( cStr, "AT+CIPSEND=%d,%d", ucId, fram.InfBit.FramLength + 2);
+		else
+			sprintf ( cStr, "AT+CIPSEND=%d", fram.InfBit.FramLength + 2 );
+		
+		bRet = ESP8266_Cmd ( cStr, "> ", 0, 1000 );
+		//bRet = ESP8266_Hex( fram, "SEND OK", 0, 1000 );
+  }
+	return bRet;
+}
 /*
  * 函数名：ESP8266_ReceiveString
  * 描述  ：WF-ESP8266模块接收字符串

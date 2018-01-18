@@ -156,6 +156,7 @@ void SysTick_Handler(void)
   * @brief  This function handles macESP8266_USARTx Handler.
   * @param  None
   * @retval None
+  *          USART1
   */
 void ZigBeeSLC_USART_INT_FUN(void)
 {
@@ -163,19 +164,54 @@ void ZigBeeSLC_USART_INT_FUN(void)
 	volatile uint8_t clear = clear;
 	if ( USART_GetITStatus ( ZigBeeSLC_USARTx, USART_IT_RXNE ) != RESET )
 	{
-		ucCh  = USART_ReceiveData( ZigBeeSLC_USARTx );		
+		ucCh  = USART_ReceiveData( ZigBeeSLC_USARTx );	
+		//ucCh = CharToHex(ucCh);//将HEX转换为ASCII码字符串
 		if(strZigBeeSLC_Fram_Record.InfBit .FramLength < ( RX_BUF_MAX_LEN - 1 ) ) //预留1个字节写结束符
 			strZigBeeSLC_Fram_Record .Data_RX_BUF [ strZigBeeSLC_Fram_Record .InfBit .FramLength ++ ]  = ucCh;
 	}
 	if ( USART_GetITStatus( ZigBeeSLC_USARTx, USART_IT_IDLE ) == SET ) //数据帧接收完毕
 	{
-		strZigBeeSLC_Fram_Record .InfBit .FramFinishFlag = 1;	
-		//ucCh = USART_ReceiveData( ZigBeeSLC_USARTx );     //由软件序列清除中断标志位(先读USART_SR，然后读USART_DR)
+		/*由于单灯控制器发送数据过慢导致空闲中断触发，数据无回车换行
+		strZigBeeSLC_Fram_Record.Data_RX_BUF[strZigBeeSLC_Fram_Record .InfBit .FramLength - 1] 等于0x55*/
+		if( strZigBeeSLC_Fram_Record .InfBit .FramLength > 5 &&
+			((unsigned char)strZigBeeSLC_Fram_Record.Data_RX_BUF[strZigBeeSLC_Fram_Record .InfBit .FramLength - 1] == 0x55 ||
+			(unsigned char)strZigBeeSLC_Fram_Record.Data_RX_BUF[strZigBeeSLC_Fram_Record .InfBit .FramLength - 2] == 0x55 ||
+			(unsigned char)strZigBeeSLC_Fram_Record.Data_RX_BUF[strZigBeeSLC_Fram_Record .InfBit .FramLength - 3] == 0x55))
+			strZigBeeSLC_Fram_Record .InfBit .FramFinishFlag = 1;			
+		/*将HEX转换为ASCII码字符串*/
+		//ucCh = USART_ReceiveData( ZigBeeSLC_USARTx );     
+		//由软件序列清除中断标志位(先读USART_SR，然后读USART_DR)
 		clear = ZigBeeSLC_USARTx->SR;
 		clear = ZigBeeSLC_USARTx->DR;
 	}
 }
 
+/***********************USART2******************************/
+void ZigBeeGS_USART_INT_FUN(void)
+{
+	uint8_t ucCh;
+	volatile uint8_t clear = clear;
+	if ( USART_GetITStatus ( ZigBeeGS_USARTx, USART_IT_RXNE ) != RESET )
+	{
+		ucCh  = USART_ReceiveData( ZigBeeGS_USARTx );	
+		//ucCh = CharToHex(ucCh);//将HEX转换为ASCII码字符串
+		if(strZigBeeGS_Fram_Record.InfBit .FramLength < ( RX_BUF_MAX_LEN - 1 ) ) //预留1个字节写结束符
+			strZigBeeGS_Fram_Record .Data_RX_BUF [ strZigBeeGS_Fram_Record .InfBit .FramLength ++ ]  = ucCh;
+	}
+	if ( USART_GetITStatus( ZigBeeGS_USARTx, USART_IT_IDLE ) == SET ) //数据帧接收完毕
+	{
+		/*由于传感器发送数据过慢导致空闲中断触发，数据无回车换行
+		strZigBeeGS_Fram_Record.Data_RX_BUF[strZigBeeGS_Fram_Record .InfBit .FramLength - 1] 等于0x55*/
+		if( strZigBeeGS_Fram_Record .InfBit .FramLength > 5 &&  (unsigned char)strZigBeeGS_Fram_Record.Data_RX_BUF[strZigBeeGS_Fram_Record .InfBit .FramLength - 1] == 0x55)	
+			strZigBeeGS_Fram_Record .InfBit .FramFinishFlag = 1;	
+		/*将HEX转换为ASCII码字符串*/   
+		//由软件序列清除中断标志位(先读USART_SR，然后读USART_DR)
+		clear = ZigBeeGS_USARTx->SR;
+		clear = ZigBeeGS_USARTx->DR;
+	}	
+}
+
+/****************USART3******************************/
 void macESP8266_USART_INT_FUN ( void )
 {	
 	uint8_t ucCh;
